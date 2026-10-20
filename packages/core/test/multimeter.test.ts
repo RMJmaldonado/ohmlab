@@ -34,6 +34,31 @@ describe("voltímetro", () => {
     expect(warnings[0].message).toMatch(/^MM1 está en serie entre V1 y R1/);
     expect(result.meters.MM1.value).toBeGreaterThan(11.99);
   });
+
+  it("en serie con la punta COM en tierra: también avisa", async () => {
+    // V1 → R1 → MM1 → tierra → V1: el único camino de vuelta pasa por el voltímetro.
+    const c = circuit(V("V1", "a", "0", 12), R("R1", "a", "b"), VM("MM1", "b", "0"), GND("GND1", "0"));
+    const { result, warnings } = await simulateOk(c);
+    expect(codes(warnings)).toEqual(["voltmeter-series"]);
+    expect(warnings[0].message).toMatch(/^MM1 está en serie entre R1 y V1/);
+    expect(result.meters.MM1.value).toBeGreaterThan(11.99);
+  });
+
+  it("en serie con tierras separadas: todas las tierras son el mismo punto", async () => {
+    const c = circuit(V("V1", "a", "g1", 12), GND("GND1", "g1"), R("R1", "a", "b"), VM("MM1", "b", "g2"), GND("GND2", "g2"));
+    const { warnings } = await simulateOk(c);
+    expect(codes(warnings)).toEqual(["voltmeter-series"]);
+  });
+
+  it("midiendo R2 con una tierra en cada componente: no avisa", async () => {
+    const c = circuit(
+      V("V1", "a", "g1", 12), GND("GND1", "g1"), R("R1", "a", "b"), R("R2", "b", "g2"), GND("GND2", "g2"),
+      VM("MM1", "b", "g3"), GND("GND3", "g3"),
+    );
+    const { result, warnings } = await simulateOk(c);
+    expect(warnings).toEqual([]);
+    expect(Math.abs(result.meters.MM1.value - 6)).toBeLessThan(1e-5);
+  });
 });
 
 describe("amperímetro", () => {

@@ -410,9 +410,11 @@ export function checkCircuit(circuit: Circuit): CircuitCheck {
       }
     } else {
       // Voltímetro en serie: cada punta toca un solo componente, y son distintos.
+      // Todas las tierras son un mismo punto: si una punta está en tierra, cuenta
+      // lo que llega a cualquier tierra (sin contar los símbolos ⏚).
       const neighbour = (node: string) => {
-        if (groundNodeSet.has(node)) return undefined;
-        const others = pinsAt.get(node)!.filter((p) => p.item !== meter);
+        const pins = groundNodeSet.has(node) ? groundNodes.flatMap((g) => pinsAt.get(g)!) : pinsAt.get(node)!;
+        const others = pins.filter((p) => p.item !== meter && !p.item.def.isGround);
         return others.length === 1 ? others[0].item : undefined;
       };
       const a = neighbour(plus);
