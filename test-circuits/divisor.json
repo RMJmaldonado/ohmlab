@@ -1,0 +1,20 @@
+{
+  "name": "Divisor de tensión",
+  "source": "Teoría: V(salida) = 12 · R2 / (R1 + R2) = 6 V; I = 12 / 2 kΩ = 6 mA; P(R) = 6 V · 6 mA = 36 mW",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 12 }, "connections": { "plus": "entrada", "minus": "gnd" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "entrada", "b": "salida" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "salida", "b": "gnd" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "gnd" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "entrada": 12, "salida": 6 },
+    "elements": {
+      "R1": { "current": 0.006, "power": 0.036 },
+      "R2": { "current": 0.006, "power": 0.036 },
+      "V1": { "current": -0.006, "power": -0.072 }
+    }
+  }
+}

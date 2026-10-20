@@ -1,0 +1,23 @@
+{
+  "name": "Mallas con dos fuentes de tensión",
+  "source": "Teoría (nodos): (10 − Va)/1k + (5 − Va)/1k = Va/2k → Va = 6 V; I(R1) = 4 mA, I(R3) = −1 mA, I(R2) = 3 mA",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 10 }, "connections": { "plus": "izq", "minus": "0" } },
+      { "id": "V2", "type": "dc-voltage-source", "params": { "voltage": 5 }, "connections": { "plus": "der", "minus": "0" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "izq", "b": "A" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 2000 }, "connections": { "a": "A", "b": "0" } },
+      { "id": "R3", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "der", "b": "A" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "A": 6 },
+    "elements": {
+      "R1": { "current": 0.004 },
+      "R2": { "current": 0.003 },
+      "R3": { "current": -0.001 },
+      "V2": { "current": 0.001, "power": 0.005 }
+    }
+  }
+}

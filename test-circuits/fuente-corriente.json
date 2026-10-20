@@ -1,0 +1,21 @@
+{
+  "name": "Fuente de tensión y fuente de corriente",
+  "source": "Teoría (nodo b): (10 − Vb)/1k + 2 mA = Vb/1k → Vb = 6 V; I(R1) = 4 mA, I(R2) = 6 mA; la fuente de corriente entrega 6 V · 2 mA = 12 mW",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 10 }, "connections": { "plus": "a", "minus": "0" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "a", "b": "b" } },
+      { "id": "I1", "type": "dc-current-source", "params": { "current": 0.002 }, "connections": { "from": "0", "to": "b" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "b", "b": "0" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "b": 6 },
+    "elements": {
+      "R1": { "current": 0.004 },
+      "R2": { "current": 0.006 },
+      "I1": { "current": 0.002, "power": -0.012 }
+    }
+  }
+}

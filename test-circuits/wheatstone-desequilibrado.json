@@ -1,0 +1,19 @@
+{
+  "name": "Puente de Wheatstone desequilibrado",
+  "source": "Teoría (Thévenin entre c y d): Vth = 5 − 10/3 = 5/3 V, Rth = 1k‖1k + 2k‖1k = 3500/3 Ω, I(R5) = Vth / (Rth + 1k) = 1/1300 A, V(c) = 60/13 V, V(d) = 50/13 V",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 10 }, "connections": { "plus": "a", "minus": "0" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "a", "b": "c" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "c", "b": "0" } },
+      { "id": "R3", "type": "resistor", "params": { "resistance": 2000 }, "connections": { "a": "a", "b": "d" } },
+      { "id": "R4", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "d", "b": "0" } },
+      { "id": "R5", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "c", "b": "d" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "c": 4.61538461538, "d": 3.84615384615 },
+    "elements": { "R5": { "current": 0.000769230769231 } }
+  }
+}

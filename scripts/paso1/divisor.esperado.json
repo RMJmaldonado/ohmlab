@@ -1,0 +1,10 @@
+{
+  "descripcion": "Divisor de tension 12 V, R1 = R2 = 1 kOhm. Fuente: teoria (V = 12 * R2 / (R1 + R2)).",
+  "valores": {
+    "salida": 6,
+    "entrada": 12,
+    "v1#branch": -0.006,
+    "@r1[p]": 0.036,
+    "@r2[p]": 0.036
+  }
+}

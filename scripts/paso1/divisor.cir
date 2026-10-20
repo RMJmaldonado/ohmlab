@@ -1,0 +1,11 @@
+* Divisor de tension: 12 V con dos resistencias de 1 kOhm
+* Esperado: V(salida) = 6 V, corriente = 6 mA, potencia en cada R = 36 mW
+V1 entrada 0 DC 12
+R1 entrada salida 1k
+R2 salida 0 1k
+.control
+op
+print all
+print @r1[p] @r2[p]
+.endc
+.end

@@ -1,0 +1,34 @@
+OhmLab: componentes de otros autores que se distribuyen con el programa
+=======================================================================
+
+OhmLab es software libre con licencia MIT (ver LICENSE.txt). Incluye estos
+programas de otros autores, sin modificar:
+
+1. ngspice 47 (motor de simulación)
+   Licencia: BSD modificada, con algunas partes LGPLv2, MPLv2.0 y de dominio
+   público. Texto completo: ngspice-COPYING.txt
+   Código fuente: https://ngspice.sourceforge.io/
+   Archivo: ngspice/bin/ngspice_con.exe
+
+2. libsndfile (la usa ngspice)
+   Licencia: GNU LGPL 2.1. Texto completo: LGPL-2.1.txt
+   Código fuente: https://github.com/libsndfile/libsndfile
+   Archivo: ngspice/bin/sndfile.dll
+   Puedes reemplazar esta biblioteca por otra versión compatible.
+
+3. libsamplerate (la usa ngspice)
+   Licencia: BSD de 2 cláusulas. Texto completo: libsamplerate-COPYING.txt
+   Código fuente: https://github.com/libsndfile/libsamplerate
+   Archivo: ngspice/bin/samplerate.dll
+
+4. Biblioteca OpenMP de Microsoft (la usa ngspice)
+   Archivo: ngspice/bin/libomp140.x86_64.dll
+   Se distribuye tal como viene en el paquete oficial de ngspice para Windows,
+   como código redistribuible de Microsoft Visual Studio.
+
+5. Electron y Chromium (la ventana de OhmLab)
+   Licencias: MIT y otras. Sus avisos están en LICENSE.electron.txt y
+   LICENSES.chromium.html, en la carpeta donde se instaló OhmLab.
+
+No se incluyen modelos de fabricantes ni los modelos de transistores de
+terceros (.osdi) ni los "code models" que trae el paquete de ngspice.

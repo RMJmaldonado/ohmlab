@@ -1,0 +1,20 @@
+# Ejecuta las pruebas en Linux en cada push y pull request.
+name: Pruebas
+
+on: [push, pull_request]
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: sudo apt-get update && sudo apt-get install -y ngspice
+      - run: npm ci
+      - run: npm test
+      - name: Revisar tipos y compilar la app de escritorio
+        run: |
+          npm run typecheck -w @ohmlab/desktop
+          npm run build -w @ohmlab/desktop

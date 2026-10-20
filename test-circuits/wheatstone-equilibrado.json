@@ -1,0 +1,19 @@
+{
+  "name": "Puente de Wheatstone equilibrado",
+  "source": "Teoría: R1/R2 = R3/R4 = 1/2, así que V(c) = V(d) = 10 · 2/3 V y por el galvanómetro (R5) no circula corriente",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 10 }, "connections": { "plus": "a", "minus": "0" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "a", "b": "c" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 2000 }, "connections": { "a": "c", "b": "0" } },
+      { "id": "R3", "type": "resistor", "params": { "resistance": 1500 }, "connections": { "a": "a", "b": "d" } },
+      { "id": "R4", "type": "resistor", "params": { "resistance": 3000 }, "connections": { "a": "d", "b": "0" } },
+      { "id": "R5", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "c", "b": "d" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "a": 10, "c": 6.66666666667, "d": 6.66666666667 },
+    "elements": { "R5": { "current": 0, "power": 0 } }
+  }
+}

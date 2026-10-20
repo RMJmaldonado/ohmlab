@@ -1,0 +1,18 @@
+{
+  "name": "Resistencia con un terminal suelto",
+  "source": "Teoría: por R3 no circula corriente (no tiene camino cerrado), así que no cae tensión en ella y V(punta) = V(salida) = 6 V",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 12 }, "connections": { "plus": "entrada", "minus": "0" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "entrada", "b": "salida" } },
+      { "id": "R2", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "salida", "b": "0" } },
+      { "id": "R3", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "salida", "b": "punta" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "salida": 6, "punta": 6 },
+    "elements": { "R3": { "current": 0, "power": 0 } },
+    "warnings": ["pin-dangling"]
+  }
+}

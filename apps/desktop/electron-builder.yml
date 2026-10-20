@@ -1,0 +1,52 @@
+# Instalador de OhmLab (paso 10). Se arma con: npm run dist:win
+appId: io.github.rmjmaldonado.ohmlab
+productName: OhmLab
+copyright: Copyright © 2026 Renzo y colaboradores de OhmLab
+directories:
+  output: dist
+  buildResources: build
+# Todo lo de la app ya está empaquetado por electron-vite en out/.
+files:
+  - out/**/*
+  - package.json
+npmRebuild: false
+# Electron ya está desempaquetado en node_modules: no se vuelve a descargar.
+electronDist: ../../node_modules/electron/dist
+extraResources:
+  # ngspice mínimo (lo copia scripts/preparar-ngspice.mjs) y un spinit vacío.
+  - from: vendor/ngspice
+    to: ngspice
+  - from: resources/ngspice
+    to: ngspice
+  # Licencias de OhmLab y de lo que incluye.
+  - from: vendor/licencias
+    to: licencias
+  - from: resources/licencias
+    to: licencias
+fileAssociations:
+  - ext: ohmlab
+    name: Circuito de OhmLab
+    description: Circuito de OhmLab
+    role: Editor
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.png
+  artifactName: OhmLab-${version}-instalador-windows.${ext}
+nsis:
+  # Por usuario y sin pedir permisos de administrador (sirve en las PC del laboratorio).
+  oneClick: false
+  perMachine: false
+  allowElevation: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: OhmLab
+  uninstallDisplayName: OhmLab
+  # Solo hay caché de Electron en %APPDATA%\OhmLab: se borra al desinstalar.
+  deleteAppDataOnUninstall: true
+  installerLanguages: [es_ES]
+  language: "3082"
+  # Limpieza extra al desinstalar (ver build/installer.nsh).
+  include: build/installer.nsh

@@ -1,0 +1,16 @@
+{
+  "name": "Fuente de tensión con un terminal suelto",
+  "source": "Teoría: sin camino cerrado no circula corriente, así que en R1 no cae tensión: V(a) = 0 V y V(suelto) = V(a) − 12 V = −12 V",
+  "circuit": {
+    "components": [
+      { "id": "V1", "type": "dc-voltage-source", "params": { "voltage": 12 }, "connections": { "plus": "a", "minus": "suelto" } },
+      { "id": "R1", "type": "resistor", "params": { "resistance": 1000 }, "connections": { "a": "a", "b": "0" } },
+      { "id": "GND1", "type": "ground", "params": {}, "connections": { "gnd": "0" } }
+    ]
+  },
+  "expected": {
+    "nodes": { "a": 0, "suelto": -12 },
+    "elements": { "V1": { "current": 0 } },
+    "warnings": ["pin-dangling"]
+  }
+}
