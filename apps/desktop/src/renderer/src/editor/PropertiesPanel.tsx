@@ -217,6 +217,7 @@ function Help() {
       <dl className="shortcuts">
         <dt>Ctrl+R</dt><dd>Girar 90° a la derecha</dd>
         <dt>Ctrl+Shift+R</dt><dd>Girar 90° a la izquierda</dd>
+        <dt>Rueda del ratón</dt><dd>Zoom; mientras colocas o arrastras una pieza, la gira</dd>
         <dt>Alt+X / Alt+Y</dt><dd>Voltear horizontal / vertical</dd>
         <dt>Supr</dt><dd>Borrar</dd>
         <dt>Ctrl+C / Ctrl+V</dt><dd>Copiar / pegar (se pega donde está el ratón)</dd>

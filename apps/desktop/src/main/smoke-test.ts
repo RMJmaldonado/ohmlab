@@ -285,6 +285,40 @@ export async function runSmokeTest(win: BrowserWindow, outFile: string): Promise
   `);
   await shot("simulacion");
 
+  // La rueda del ratón gira la pieza mientras se coloca y mientras se arrastra.
+  const wheelRotation = await run(`
+    ${EDITOR_POINTER}
+    const wheel = ([x, y]) => svg.dispatchEvent(new WheelEvent("wheel", {
+      bubbles: true, cancelable: true, deltaY: 100, clientX: rect.left + x, clientY: rect.top + y,
+    }));
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const spot = cell(-4, 10);
+    const moved = cell(-2, 10);
+    click("[data-palette='resistor']");
+    await pause();
+    pointer(svg, "pointermove", ...spot);
+    await pause();
+    wheel(spot);
+    await pause();
+    await tap(svg, ...spot);
+    const whilePlacing = (await waitFor(() => $("[data-component=R3]"), "R3")).dataset.rotation;
+    await wait(250);
+    pointer($("[data-component=R3] .hit"), "pointerdown", ...spot);
+    pointer(svg, "pointermove", ...moved);
+    await pause();
+    wheel(moved);
+    await pause();
+    pointer(svg, "pointerup", ...moved);
+    await pause();
+    const whileDragging = $("[data-component=R3]").dataset.rotation;
+    if (whilePlacing !== "90" || whileDragging !== "180") {
+      throw new Error("La rueda no giró la pieza: al colocar " + whilePlacing + "°, al arrastrar " + whileDragging + "°");
+    }
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Delete", bubbles: true }));
+    await waitFor(() => !$("[data-component=R3]"), "borrar R3");
+    return { whilePlacing, whileDragging };
+  `);
+
   // Sin tierra: error en español y ningún número en la pantalla del multímetro.
   const noGround: string = await run(`
     ${EDITOR_POINTER}
@@ -377,7 +411,7 @@ export async function runSmokeTest(win: BrowserWindow, outFile: string): Promise
   const report: string = await run(`return (await waitFor(() => $("[data-testid=informe]"), "informe")).innerText;`);
   await shot("diagnostico");
 
-  console.log(JSON.stringify({ selfTest, editor, groundNode, simulation, noGround, files, voltmeter, ammeter, error, thevenin, report }, null, 2));
+  console.log(JSON.stringify({ selfTest, editor, groundNode, simulation, wheelRotation, noGround, files, voltmeter, ammeter, error, thevenin, report }, null, 2));
   return /mayor que 0/.test(error);
 }
 

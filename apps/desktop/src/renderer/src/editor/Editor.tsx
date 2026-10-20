@@ -336,6 +336,7 @@ export function Editor({ active }: { active: boolean }) {
           onMove={move}
           onPlace={place}
           onWire={(points) => apply((s) => addWire(s, points))}
+          onRotate={rotateSelection}
           onEdit={(id) => {
             setSelection(new Set([id]));
             const component = schematic.components.find((c) => c.id === id);
@@ -471,14 +472,14 @@ function describeClip(clip: Clip): string {
 }
 
 function statusHint(placing: Placing | null, selected: PlacedComponent[], count: number): string {
-  if (placing) return "Haz clic en el lienzo para colocarlo (sobre un cable, queda en serie). Ctrl+R lo gira. Esc cancela.";
+  if (placing) return "Haz clic en el lienzo para colocarlo (sobre un cable, queda en serie). La rueda del ratón o Ctrl+R lo gira. Esc cancela.";
   if (selected.length === 1 && getComponentDef(selected[0].type).probe) {
     return "Suelta la punta sobre un cable. Con ▶ Simular, su valor aparece encima de ella.";
   }
   if (selected.length === 1 && getComponentDef(selected[0].type).meter) {
     return "Doble clic sobre el multímetro abre su ventana para elegir el modo (V, A, Ω). Arrastra para moverlo.";
   }
-  if (selected.length > 0) return "Arrastra para mover (los cables lo siguen). Ctrl+R gira, Supr borra, doble clic edita el valor.";
+  if (selected.length > 0) return "Arrastra para mover (los cables lo siguen); mientras arrastras, la rueda lo gira. Ctrl+R gira, Supr borra, doble clic edita el valor.";
   if (count >= 2) return "Para unir: haz clic en el extremo de un componente y arrastra hasta otro. Pasa el ratón por un cable para ver su nodo.";
   return "Coloca componentes desde la paleta.";
 }

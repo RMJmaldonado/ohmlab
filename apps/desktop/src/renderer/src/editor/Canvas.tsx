@@ -65,6 +65,8 @@ interface Props {
   onPlace(type: string, x: number, y: number): void;
   onWire(points: Point[]): void;
   onEdit(id: string): void;
+  /** Rueda del ratón mientras se coloca o se arrastra una pieza. */
+  onRotate(direction: "cw" | "ccw"): void;
   onCursor(point: Point | null): void;
   onHoverNet(net: string | null): void;
   onHoverComponent(id: string | null): void;
@@ -125,14 +127,26 @@ export function Canvas(props: Props) {
     };
   }, []);
 
-  // Rueda del ratón = zoom alrededor del cursor. Se registra a mano para poder
+  // Rueda del ratón = zoom alrededor del cursor. Mientras se coloca o se
+  // arrastra una pieza, la rueda la gira 90°. Se registra a mano para poder
   // impedir que la página se desplace.
   const viewRef = useRef(view);
   viewRef.current = view;
+  const wheelState = useRef({ placing, onRotate: props.onRotate, lastTurn: 0 });
+  wheelState.current.placing = placing;
+  wheelState.current.onRotate = props.onRotate;
   useEffect(() => {
     const svg = svgRef.current!;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
+      const w = wheelState.current;
+      if (w.placing || gestureRef.current.kind === "drag") {
+        // Un touchpad manda muchos eventos seguidos: un giro cada 200 ms como mucho.
+        if (e.timeStamp - w.lastTurn < 200) return;
+        w.lastTurn = e.timeStamp;
+        w.onRotate(e.deltaY > 0 ? "cw" : "ccw");
+        return;
+      }
       const v = viewRef.current;
       const rect = svg.getBoundingClientRect();
       const px = e.clientX - rect.left;
