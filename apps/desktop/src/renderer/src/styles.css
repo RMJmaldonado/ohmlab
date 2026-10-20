@@ -86,17 +86,6 @@ button.link { border: none; background: none; color: var(--accent); padding: 0; 
 .banner button { margin-left: auto; }
 .banner-error { background: var(--error-bg); color: var(--error); }
 
-.schematic { width: 100%; max-width: 460px; display: block; margin: 12px auto; }
-.schematic .wire { stroke: var(--wire); stroke-width: 2; fill: none; }
-.schematic .part { stroke: var(--part); stroke-width: 2.2; fill: none; }
-.schematic .node { fill: var(--wire); }
-.schematic text { fill: var(--text); font-size: 13px; text-anchor: middle; }
-.schematic .label { font-weight: 600; }
-.schematic .value { fill: var(--muted); }
-.schematic .sign { font-size: 14px; dominant-baseline: middle; }
-.schematic .voltage { fill: var(--voltage); font-weight: 600; }
-.schematic text[text-anchor="end"] { text-anchor: end; }
-.schematic text[text-anchor="start"] { text-anchor: start; }
 
 .fields { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; }
 .field { display: flex; align-items: center; gap: 6px; }
@@ -129,26 +118,9 @@ th { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
 .actions { display: flex; gap: 8px; justify-content: flex-end; }
 
 .clickable { cursor: pointer; }
-.schematic .hit { stroke: transparent; stroke-width: 16; fill: none; }
-.schematic .clickable:hover .wire, .schematic .part-group:hover .part { stroke: var(--accent); }
-.schematic circle.node.clickable:hover { fill: var(--accent); }
-.schematic .part-group.removed { opacity: 0.25; }
-.schematic .part-group.flagged .part, .schematic .part-group.flagged .label { stroke: var(--error); fill: none; }
-.schematic .part-group.flagged text.label { fill: var(--error); stroke: none; }
-.schematic .part-group.measured .part { stroke: var(--accent); }
-.schematic .ground line { stroke: var(--part); stroke-width: 2; }
-.schematic .probe line { stroke-width: 2; }
-.schematic .probe text { font-size: 11px; font-weight: 700; dominant-baseline: middle; fill: #ffffff; }
-.schematic .probe-plus line { stroke: var(--probe-plus); }
-.schematic .probe-plus circle { fill: var(--probe-plus); }
-.schematic .probe-com line { stroke: var(--probe-com); }
-.schematic .probe-com circle { fill: var(--probe-com); }
-.schematic .probe-com text { fill: var(--surface); }
-.schematic .probe-series circle { fill: var(--accent); }
 
 .meter { display: grid; gap: 10px; }
 .meter h2 { margin: 0; }
-.meter-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .modes { display: flex; gap: 4px; }
 .mode { min-width: 40px; font-weight: 700; }
 .mode.active { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
@@ -159,13 +131,10 @@ th { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
 .field select { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
 .field input:disabled { opacity: 0.5; }
 .check { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; }
-.hint-run { padding: 4px 4px; }
 
 .views { display: flex; gap: 4px; margin-left: 16px; }
 .view-tab { border: none; background: none; color: var(--muted); padding: 6px 12px; border-radius: 7px; }
 .view-tab.active { background: var(--bg); color: var(--text); font-weight: 600; }
-.practice-bar { display: flex; align-items: center; gap: 8px; padding: 10px 20px 0; }
-.practice-bar .tabs { margin-left: 0; }
 
 /* Editor */
 .editor { flex: 1; min-height: 0; display: grid; grid-template-columns: 190px 1fr 270px; grid-template-rows: auto 1fr auto; }
@@ -285,3 +254,50 @@ button.danger { color: var(--error); }
 .palette-icon .probe-a { stroke: var(--warning); }
 .file-banner { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 6; max-width: 90%; display: flex; gap: 10px; align-items: flex-start; padding: 8px 8px 8px 12px; border-radius: 8px; border: 1px solid var(--error); background: var(--error-bg); color: var(--error); font-size: 0.9rem; font-weight: 600; }
 .file-banner .close { border: none; background: none; color: inherit; font-size: 1.1rem; line-height: 1; padding: 0 4px; }
+
+/* Práctica con el multímetro */
+.practice-grid { flex: 1; display: grid; gap: 14px; padding: 14px 16px; grid-template-columns: 185px minmax(360px, 1fr) 270px; align-items: start; }
+@media (max-width: 860px) { .practice-grid { grid-template-columns: 1fr; } }
+.exercise-list { padding: 12px; }
+.exercise-list h3 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 2px 4px 8px; }
+.exercise-list ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+.exercise { display: flex; gap: 6px; width: 100%; text-align: left; border: 1px solid transparent; background: none; padding: 6px 8px; font-size: 0.92rem; }
+.exercise.active { background: var(--bg); border-color: var(--accent); font-weight: 600; }
+.exercise .check-mark { width: 14px; flex: none; color: var(--ok); font-weight: 700; }
+.exercise-main .task { font-size: 1.05rem; margin: 6px 0 4px; }
+.practice-canvas { height: auto; aspect-ratio: 4 / 3; max-height: 62vh; border: 1px solid var(--border); border-radius: 8px; margin: 10px 0; }
+.practice-canvas .component { cursor: default; }
+.practice-canvas .cut-preview { stroke: var(--accent); stroke-width: 6; stroke-linecap: round; opacity: 0.45; }
+.practice-canvas .lead-cable { fill: none; stroke-width: 2.5; stroke-linecap: round; pointer-events: none; }
+.practice-canvas .lead-plus { stroke: var(--probe-plus); }
+.practice-canvas .lead-com { stroke: var(--probe-com); }
+.practice-meter { cursor: grab; }
+.practice-canvas.dragging .practice-meter { cursor: grabbing; }
+.practice-meter .meter-body { fill: var(--surface); stroke: var(--part); stroke-width: 2; }
+.practice-meter .meter-display { fill: var(--display-bg); stroke: var(--part); stroke-width: 1; }
+.practice-meter text { dominant-baseline: middle; }
+.practice-meter .meter-reading { fill: var(--display-text); font-size: 15px; font-weight: 700; text-anchor: end; font-variant-numeric: tabular-nums; }
+.practice-meter .meter-mode { fill: var(--muted); font-size: 11px; text-anchor: middle; }
+.practice-meter .jack-plus { fill: var(--probe-plus); }
+.practice-meter .jack-com { fill: var(--probe-com); }
+.practice-meter .jack-label { fill: var(--muted); font-size: 10px; text-anchor: middle; }
+.probe-tip { cursor: grab; }
+.probe-tip.locked { cursor: default; }
+.probe-tip .tip-hit { fill: transparent; }
+.probe-tip .tip-dot { stroke: var(--surface); stroke-width: 2; }
+.tip-plus .tip-dot { fill: var(--probe-plus); }
+.tip-com .tip-dot { fill: var(--probe-com); }
+.probe-tip.attached .tip-dot { stroke: var(--accent); }
+.modes.wide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.modes.wide .mode { display: grid; gap: 2px; padding: 8px 4px; font-weight: 400; font-size: 0.78rem; }
+.modes.wide .mode strong { font-size: 1.2rem; }
+.row-buttons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.answer { display: grid; gap: 10px; }
+.answer-field { display: grid; gap: 6px; font-weight: 600; }
+.answer-field input { font: inherit; font-weight: 400; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.verdict { padding: 10px 12px; border-radius: 8px; }
+.verdict.ok { background: var(--display-bg); color: var(--ok); font-weight: 600; }
+.verdict.hint { background: var(--warning-bg); color: var(--warning); }
+.changes { display: flex; gap: 18px; flex-wrap: wrap; }
+.display.stale { opacity: 0.55; }
+.practice-canvas .node-name { fill: var(--node); font-size: 15px; font-weight: 700; dominant-baseline: auto; }

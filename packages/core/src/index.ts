@@ -15,3 +15,4 @@ export type { SelfTestCheck, SelfTestReport } from "./self-test-report.ts";
 export { formatSI } from "./format.ts";
 export { formatInput, parseValue } from "./values.ts";
 export * from "./schematic/index.ts";
+export * from "./practice/index.ts";

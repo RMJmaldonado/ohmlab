@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { SelfTestResult } from "../../shared/api";
 import { DiagnosticsDialog } from "./DiagnosticsDialog";
 import { Editor } from "./editor/Editor";
-import { Practice } from "./Practice";
+import { Practice } from "./practice/Practice";
 
 type SelfTestState = { status: "running" } | { status: "done"; result: SelfTestResult };
 type ViewName = "editor" | "practice";

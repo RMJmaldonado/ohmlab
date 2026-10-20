@@ -29,7 +29,6 @@ const HELPERS = `
   };
   // Pausa corta entre acciones: una persona nunca hace clic tan rápido como el script.
   const pause = (ms = 60) => new Promise((resolve) => setTimeout(resolve, ms));
-  const reading = (pattern) => waitFor(() => pattern.test($("[data-testid=lectura]").innerText) && $("[data-testid=lectura]").innerText, "lectura " + pattern);
 `;
 
 export async function runSmokeTest(win: BrowserWindow, outFile: string): Promise<boolean> {
@@ -368,42 +367,104 @@ export async function runSmokeTest(win: BrowserWindow, outFile: string): Promise
   await shot("archivo-danado");
   const files = { before, savedTitle, reopened, brokenFile };
 
-  // Voltímetro sobre R2 del divisor: punta roja en "salida", negra en tierra.
-  const voltmeter: string = await run(`
+  // Práctica con el multímetro: las puntas y el multímetro se arrastran
+  // hasta el circuito; se escribe lo que marca la pantalla y se comprueba.
+  const PRACTICE = `
+    // Se busca cada vez: al cambiar de ejercicio el lienzo se vuelve a crear.
+    const svg = () => $("[data-testid=lienzo-practica]");
+    const at = (gx, gy) => {
+      const p = new DOMPoint(gx * 20, gy * 20).matrixTransform(svg().getScreenCTM());
+      return [p.x, p.y];
+    };
+    const fire = (target, type, [x, y]) => target.dispatchEvent(new PointerEvent(type, {
+      bubbles: true, clientX: x, clientY: y, button: 0, buttons: type === "pointerup" ? 0 : 1, pointerId: 1, isPrimary: true,
+    }));
+    const drag = async (selector, to) => {
+      const target = $(selector);
+      const r = target.getBoundingClientRect();
+      fire(target, "pointerdown", [r.left + r.width / 2, r.top + r.height / 2]);
+      await pause();
+      fire(svg(), "pointermove", to);
+      await pause();
+      fire(svg(), "pointerup", to);
+      await pause();
+    };
+    const screen = () => $("[data-testid=lectura-practica]").innerText;
+    // Una lectura distinta de cero, con cualquier prefijo (los valores son al azar: puede ser mV o µA).
+    const measured = (unit) => waitFor(() => {
+      const s = screen();
+      const fresh = $("[data-testid=lectura-practica]").dataset.fresh === "true";
+      return fresh && new RegExp("^-?[0-9.,]*[1-9][0-9.,]* [pnµmkM]?" + unit + "$").test(s) && s;
+    }, "lectura en " + unit);
+    const answer = async (text) => {
+      const input = $("[data-testid=respuesta]");
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, text);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      await pause();
+      click("[data-testid=comprobar]");
+      return (await waitFor(() => $("[data-testid=veredicto]"), "veredicto")).innerText;
+    };
+    const exercise = async (id) => {
+      click("[data-exercise=" + id + "]");
+      await waitFor(() => $("[data-exercise=" + id + "].active"), "ejercicio " + id);
+      await pause(200);
+    };
+  `;
+
+  // 1. Tensión en R2: punta roja arriba de R2 (8,2), negra abajo (8,6).
+  const voltmeter = await run(`
     click("[data-view=practice]");
-    click("[data-testid=simular]");
-    click("circle[data-node=salida]");
-    click("circle[data-node='0']");
-    return reading(/6 V/);
+    ${PRACTICE}
+    await exercise("tension-serie");
+    await drag("[data-tip=plus] .tip-hit", at(8, 2));
+    await drag("[data-tip=com] .tip-hit", at(8, 6));
+    const value = await measured("V");
+    const verdict = await answer(value);
+    if (!/^¡Correcto!/.test(verdict)) throw new Error("Tensión en R2: " + verdict);
+    return value + " | " + verdict;
   `);
   await shot("");
 
-  // Amperímetro intercalado en serie con R1.
-  const ammeter: string = await run(`
+  // 2. Corriente en serie: primero mal (puntas en paralelo con R2), luego bien
+  // (el multímetro arrastrado sobre el cable de arriba, entre R1 y R2).
+  const ammeter = await run(`
+    ${PRACTICE}
+    await exercise("corriente-serie");
     click("[data-mode=A]");
-    click("[data-part=R1]");
-    return reading(/6 mA/);
+    await drag("[data-tip=plus] .tip-hit", at(8, 2));
+    await drag("[data-tip=com] .tip-hit", at(8, 6));
+    await measured("A");
+    const hint = await answer(screen());
+    if (!/^El amperímetro va en serie/.test(hint)) throw new Error("Amperímetro en paralelo: " + hint);
+    [...document.querySelectorAll("button.link")].find((b) => b.innerText.includes("Desconectar")).click();
+    await pause();
+    await drag("[data-meter-box] .meter-body", at(7, 0));
+    await waitFor(() => $("[data-tip=plus].locked"), "multímetro intercalado");
+    const value = await measured("A");
+    const verdict = await answer(value);
+    if (!/^¡Correcto!/.test(verdict)) throw new Error("Corriente en serie: " + verdict);
+    return hint + " | " + value + " | " + verdict;
   `);
   await shot("amperimetro");
 
-  // Un error a propósito: R1 = 0 Ω debe mostrar un mensaje, no números.
-  const error: string = await run(`
-    const input = document.querySelectorAll(".field input")[1];
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(input, "0");
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    return (await waitFor(() => $(".diagnostics li.error"), "error")).innerText;
-  `);
-  await shot("error");
-
-  // Thévenin del puente: sin R5, el ohmímetro entre c y d marca 1,167 kΩ.
-  const thevenin: string = await run(`
-    [...document.querySelectorAll(".tab")].find((b) => b.innerText.includes("Wheatstone")).click();
-    await waitFor(() => $("[data-part=R5]"), "puente");
+  // 3. Resistencia de Thévenin: sin quitar R5 da una pista; quitando R5 y
+  // apagando V1, el ohmímetro entre c (4,6) y d (12,6) da la respuesta.
+  const thevenin = await run(`
+    ${PRACTICE}
+    await exercise("resistencia-thevenin");
     click("[data-mode=Ω]");
-    $(".check input").click();
-    click("circle[data-node=c]");
-    click("circle[data-node=d]");
-    return reading(/1.167 kΩ/);
+    await drag("[data-tip=plus] .tip-hit", at(4, 6));
+    await drag("[data-tip=com] .tip-hit", at(12, 6));
+    const hint = await answer("1k");
+    if (!/^Antes de medir, quita R5/.test(hint)) throw new Error("Thévenin sin quitar R5: " + hint);
+    click("[data-change='remove:R5']");
+    click("[data-change='turn-off:V1']");
+    await waitFor(() => !$("[data-part=R5]") && !$("[data-part=V1]"), "sin R5 y con V1 apagada");
+    await pause(300);
+    const value = await measured("Ω");
+    const verdict = await answer(value);
+    if (!/^¡Correcto!/.test(verdict)) throw new Error("Thévenin: " + verdict);
+    return hint + " | " + value + " | " + verdict;
   `);
   await shot("thevenin");
 
@@ -411,8 +472,8 @@ export async function runSmokeTest(win: BrowserWindow, outFile: string): Promise
   const report: string = await run(`return (await waitFor(() => $("[data-testid=informe]"), "informe")).innerText;`);
   await shot("diagnostico");
 
-  console.log(JSON.stringify({ selfTest, editor, groundNode, simulation, wheelRotation, noGround, files, voltmeter, ammeter, error, thevenin, report }, null, 2));
-  return /mayor que 0/.test(error);
+  console.log(JSON.stringify({ selfTest, editor, groundNode, simulation, wheelRotation, noGround, files, voltmeter, ammeter, thevenin, report }, null, 2));
+  return true;
 }
 
 async function capture(win: BrowserWindow, file: string) {
