@@ -11,7 +11,7 @@ export {
   rotateComponents,
   setParam,
 } from "./edit.ts";
-export { addWire, findInsertion, insertIntoWire, normalizeWires, type Insertion } from "./wires.ts";
+export { addWire, findInsertion, insertIntoWire, normalizeWires, routeAround, type Insertion } from "./wires.ts";
 export {
   analyzeConnectivity,
   pinKey,

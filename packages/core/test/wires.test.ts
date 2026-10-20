@@ -13,6 +13,7 @@ import {
   moveItems,
   pinPositions,
   rotateComponents,
+  routeAround,
   schematicToCircuit,
   type PlacedComponent,
   type Point,
@@ -85,6 +86,35 @@ describe("agregar cables", () => {
   it("un cable de largo cero no agrega nada", () => {
     const s = emptySchematic();
     expect(addWire(s, [[1, 1], [1, 1]])).toBe(s);
+  });
+});
+
+describe("los cables no pasan por encima de las piezas", () => {
+  // R1 horizontal con pines en (8,6) y (12,6); el multímetro arriba, con las
+  // puntas en (9,2) y (11,2), dentro del largo de R1.
+  const s: Schematic = {
+    ...emptySchematic(),
+    components: [part("R1", "resistor", 10, 6), part("MM1", "ammeter", 10, 0)],
+  };
+
+  it("de la punta + al pin de R1: va por el costado, no sobre la resistencia", () => {
+    // Bajando primero, el tramo horizontal quedaría sobre R1: se dobla al otro lado.
+    expect(routeAround(s, [9, 2], [8, 6], "v")).toEqual([[8, 2], [8, 6]]);
+    expect(routeAround(s, [11, 2], [12, 6], "v")).toEqual([[12, 2], [12, 6]]);
+  });
+
+  it("desde el pin de R1 hacia el multímetro, igual", () => {
+    expect(routeAround(s, [8, 6], [9, 2], "h")).toEqual([[8, 2], [9, 2]]);
+  });
+
+  it("si el camino pedido no toca ninguna pieza, lo respeta", () => {
+    expect(routeAround(s, [8, 6], [4, 9], "h")).toEqual([[4, 6], [4, 9]]); // sale del pin de R1 hacia afuera
+    expect(routeAround(s, [0, 0], [4, 3], "h")).toEqual([[4, 0], [4, 3]]);
+  });
+
+  it("un cable que cruza la resistencia por el medio también cuenta", () => {
+    // De (10,4) a (14,8): bajando primero cruzaría R1 en (10,6).
+    expect(routeAround(s, [10, 4], [14, 8], "v")).toEqual([[14, 4], [14, 8]]);
   });
 });
 

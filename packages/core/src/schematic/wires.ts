@@ -34,6 +34,40 @@ export function addWire(schematic: Schematic, points: Point[]): Schematic {
 }
 
 /**
+ * Camino en L hasta un punto sin pasar por encima de ninguna pieza. Prueba
+ * primero el sentido pedido; si ese camino cruza el cuerpo de una pieza (la
+ * línea entre sus pines) y el otro sentido no, usa el otro.
+ */
+export function routeAround(schematic: Schematic, from: Point, to: Point, first: "h" | "v"): Point[] {
+  const preferred = route(from, to, first);
+  if (preferred.length < 2) return preferred;
+  const other = route(from, to, first === "h" ? "v" : "h");
+  const bodies = schematic.components.flatMap((c) => {
+    const [p, q] = Object.values(pinPositions(c));
+    return q && (p[0] === q[0] || p[1] === q[1]) ? [[p, q] as const] : [];
+  });
+  const crosses = (path: Point[]) =>
+    path.some((b, i) => {
+      const a = i === 0 ? from : path[i - 1];
+      return bodies.some(([p, q]) => overBody(a, b, p, q));
+    });
+  return crosses(preferred) && !crosses(other) ? other : preferred;
+}
+
+/** El tramo a-b toca el interior del cuerpo p-q (tocar sus pines no cuenta). */
+function overBody(a: Point, b: Point, p: Point, q: Point): boolean {
+  const axis = p[1] === q[1] ? 0 : 1; // 0: cuerpo horizontal, 1: vertical
+  const across = 1 - axis;
+  const [lo, hi] = [Math.min(p[axis], q[axis]), Math.max(p[axis], q[axis])];
+  const [from, to] = [Math.min(a[axis], b[axis]), Math.max(a[axis], b[axis])];
+  if (a[across] === p[across] && b[across] === p[across]) return from < hi && to > lo; // en la misma línea
+  if (a[axis] !== b[axis]) return false; // paralelo, en otra línea
+  // Perpendicular: lo cruza si pasa por dentro del cuerpo.
+  const [c1, c2] = [Math.min(a[across], b[across]), Math.max(a[across], b[across])];
+  return a[axis] > lo && a[axis] < hi && c1 <= p[across] && c2 >= p[across];
+}
+
+/**
  * Ordena los cables sin cambiar lo que se ve: quita los tramos de largo cero
  * y los repetidos, y une dos tramos en línea recta que se tocan en un punto
  * donde no hay nada más. Si no hay nada que ordenar, devuelve el mismo objeto.

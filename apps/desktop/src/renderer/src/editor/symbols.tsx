@@ -28,16 +28,18 @@ function Upright({ x, y, c, className, children }: { x: number; y: number; c: Or
   return <text className={className} x={qx} y={y} transform={transform}>{children}</text>;
 }
 
+// Caja de 2 × 2 cuadros, más chica que una resistencia. Las puntas siguen en
+// (−1, 2) y (1, 2) para que los circuitos ya guardados no cambien.
 const meterBox = (letter: string): SymbolShape => ({
-  bounds: [-32, -36, 64, 76],
+  bounds: [-22, -22, 44, 64],
   draw: (c) => (
     <>
-      <rect className="part meter-box" x={-30} y={-34} width={60} height={56} rx={6} />
-      <Upright className="meter-letter" x={0} y={-6} c={c}>{letter}</Upright>
-      <line className="lead lead-plus" x1={-20} y1={22} x2={-20} y2={40} />
-      <line className="lead lead-com" x1={20} y1={22} x2={20} y2={40} />
-      <Upright className="pin-mark" x={-20} y={14} c={c}>+</Upright>
-      <Upright className="pin-mark" x={20} y={14} c={c}>COM</Upright>
+      <rect className="part meter-box" x={-20} y={-20} width={40} height={40} rx={5} />
+      <Upright className="meter-letter" x={0} y={-3} c={c}>{letter}</Upright>
+      <line className="lead lead-plus" x1={-20} y1={20} x2={-20} y2={40} />
+      <line className="lead lead-com" x1={20} y1={20} x2={20} y2={40} />
+      <Upright className="pin-mark" x={-12} y={15} c={c}>+</Upright>
+      <Upright className="pin-mark" x={9} y={15} c={c}>COM</Upright>
     </>
   ),
 });

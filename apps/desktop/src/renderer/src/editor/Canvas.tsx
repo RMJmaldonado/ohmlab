@@ -11,7 +11,7 @@ import {
   pinKey,
   pinPositions,
   pointKey,
-  route,
+  routeAround,
   samePoint,
   type Connectivity,
   type Insertion,
@@ -230,7 +230,7 @@ export function Canvas(props: Props) {
 
   /** Clic con un cable en curso: termina en un pin o cable, o hace una esquina. */
   const continueWire = (g: Extract<Gesture, { kind: "wire" }>, point: Point) => {
-    const path = wirePath(g, point);
+    const path = wirePath(schematic, g, point);
     const last = g.points[g.points.length - 1];
     if (samePoint(point, last)) {
       // Segundo clic en el mismo punto (doble clic): el cable termina aquí.
@@ -288,7 +288,7 @@ export function Canvas(props: Props) {
       const point = snap(toWorld(e.clientX, e.clientY));
       // Se soltó en el mismo pin: fue un clic, el cable sigue al ratón.
       if (samePoint(point, gesture.points[0])) setGesture({ ...gesture, clicked: true });
-      else finishWire(wirePath(gesture, point));
+      else finishWire(wirePath(schematic, gesture, point));
       return;
     }
     if (gesture.kind === "drag") {
@@ -350,7 +350,7 @@ export function Canvas(props: Props) {
   };
   const openEnds = new Set(connectivity.openEnds.map(pointKey));
   const pinSpots = new Set(display.components.flatMap((c) => Object.values(pinPositions(c)).map(pointKey)));
-  const preview = gesture.kind === "wire" && cursor ? wirePath(gesture, cursor) : null;
+  const preview = gesture.kind === "wire" && cursor ? wirePath(schematic, gesture, cursor) : null;
 
   const classes = ["canvas"];
   if (placing) classes.push("placing");
@@ -431,7 +431,8 @@ export function Canvas(props: Props) {
               const [bx, by, bw, bh] = worldBounds(c);
               const def = getComponentDef(c.type);
               if (def.probe) return <ProbeTag key={c.id} id={c.id} x={bx + bw / 2} y={by - 4} text={text} kind={def.meter === "V" ? "v" : "a"} />;
-              return <MeterScreen key={c.id} id={c.id} x={bx + bw / 2} y={by + bh / 2} text={text} />;
+              // Encima del multímetro: la caja es chica y la lectura no debe tapar su nombre.
+              return <MeterScreen key={c.id} id={c.id} x={bx + bw / 2} y={by - 16} text={text} />;
             })}
           </g>
         )}
@@ -535,11 +536,11 @@ function ProbeTag({ id, x, y, text, kind }: { id: string; x: number; y: number; 
   );
 }
 
-/** Pantalla del multímetro sobre su símbolo, siempre derecha. */
+/** Pantalla del multímetro centrada en (x, y), sobre su caja, siempre derecha. */
 function MeterScreen({ id, x, y, text }: { id: string; x: number; y: number; text: string }) {
   const width = Math.max(56, text.length * 9 + 12);
   return (
-    <g className="meter-screen" data-meter={id} transform={`translate(${x - width / 2} ${y - 28})`}>
+    <g className="meter-screen" data-meter={id} transform={`translate(${x - width / 2} ${y - 12})`}>
       <rect width={width} height={24} rx={3} />
       <text x={width - 6} y={13}>{text}</text>
     </g>
@@ -547,10 +548,11 @@ function MeterScreen({ id, x, y, text }: { id: string; x: number; y: number; tex
 }
 
 /** Camino del cable en curso hasta el cursor, con ángulos rectos. */
-function wirePath(g: Extract<Gesture, { kind: "wire" }>, to: Point): Point[] {
+function wirePath(schematic: Schematic, g: Extract<Gesture, { kind: "wire" }>, to: Point): Point[] {
   const last = g.points[g.points.length - 1];
   const axis = g.axis ?? (Math.abs(to[0] - last[0]) >= Math.abs(to[1] - last[1]) ? "h" : "v");
-  return [...g.points, ...route(last, to, axis)];
+  // Si la esquina dejaría el cable encima de una pieza, se dobla al otro lado.
+  return [...g.points, ...routeAround(schematic, last, to, axis)];
 }
 
 /** En ese punto hay algo a lo que un cable se puede unir: un pin o un cable. */
