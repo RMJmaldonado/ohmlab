@@ -1,7 +1,7 @@
 {
   "name": "@ohmlab/desktop",
   "productName": "OhmLab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Simulador de circuitos libre para estudiantes",
   "main": "out/main/index.js",
@@ -13,7 +13,7 @@
     "dist:win": "node scripts/preparar-ngspice.mjs && electron-vite build && electron-builder --win --publish never"
   },
   "devDependencies": {
-    "@ohmlab/core": "0.1.0",
+    "@ohmlab/core": "0.2.0",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
